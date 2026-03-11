@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "features": [
+    "dist_m",
+    "visible_angle",
+    "rb",
+    "ru",
+    "pp",
+    "sh",
+    "in_slot"
+  ],
+  "params": [
+    -1.424827,
+    -0.175657,
+    0.016214,
+    0.207302,
+    -0.040276,
+    0.192134,
+    -0.739621,
+    -0.117451
+  ],
+  "training_shots": 42048,
+  "training_goals": 2653
+}
