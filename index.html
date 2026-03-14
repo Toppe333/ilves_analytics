@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auroraliiga Analytics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e17;--bg2:#111827;--bg3:#1a2236;--brd:#2a3450;--tx:#e2e8f0;--tx2:#94a3b8;--tx3:#64748b;--ac:#38bdf8;--gol:#22c55e;--sav:#06b6d4;--blk:#6366f1;--mis:#ef4444;--ilv:#f59e0b}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:12px}
+.m{font-family:'JetBrains Mono',monospace}
+.hdr{padding:10px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-wrap:wrap;gap:6px}
+.hdr h1{font-size:16px;font-weight:700;letter-spacing:-.5px}.hdr h1 b{color:var(--ilv)}
+.nav{display:flex;gap:2px;flex-wrap:wrap}.nb{padding:4px 9px;border:1px solid var(--brd);background:0;color:var(--tx2);border-radius:4px;cursor:pointer;font-size:10px;font-family:inherit;transition:.1s}
+.nb:hover{border-color:var(--ac);color:var(--ac)}.nb.on{background:var(--ac);color:var(--bg);border-color:var(--ac);font-weight:600}
+.fil{padding:6px 16px;display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;border-bottom:1px solid var(--brd);background:var(--bg2)}
+.fg{display:flex;flex-direction:column;gap:1px}.fg label{font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.fg select,.fg input{padding:3px 5px;border:1px solid var(--brd);background:var(--bg3);color:var(--tx);border-radius:3px;font-size:10px;font-family:inherit}
+.fg input[type=text]{min-width:100px}.fg input[type=number]{width:50px}
+.fg select[multiple]{height:70px;font-size:9px}
+.cr{display:flex;gap:2px;flex-wrap:wrap}.ch{padding:1px 5px;border:1px solid var(--brd);border-radius:3px;font-size:9px;cursor:pointer;background:0;color:var(--tx2);transition:.1s;font-family:inherit;white-space:nowrap}
+.ch:hover{border-color:var(--ac);color:var(--ac)}.ch.on{background:var(--ac);color:var(--bg);border-color:var(--ac);font-weight:600}
+.ct{padding:12px 16px;max-width:1440px;margin:0 auto}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cd{background:var(--bg2);border:1px solid var(--brd);border-radius:6px;padding:10px}.cd h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);margin-bottom:5px;font-weight:600}
+.cd .big{font-size:22px;font-weight:700;letter-spacing:-.5px}.cd .sub{font-size:8px;color:var(--tx3);margin-top:1px}
+.leg{font-size:8px;color:var(--tx3);margin-top:3px;font-style:italic;line-height:1.4}
+table{width:100%;border-collapse:collapse;font-size:10px}th{text-align:left;padding:3px 4px;font-weight:600;color:var(--tx3);border-bottom:1px solid var(--brd);font-size:8px;letter-spacing:.3px;cursor:pointer;user-select:none;white-space:nowrap;text-transform:uppercase}
+th:hover{color:var(--ac)}td{padding:2px 4px;border-bottom:1px solid rgba(42,52,80,.25)}.n{text-align:right;font-family:'JetBrains Mono',monospace;font-size:9px}
+tr:hover{background:rgba(56,189,248,.03)}
+.stb{max-height:480px;overflow-y:auto}.stb thead{position:sticky;top:0;background:var(--bg2);z-index:1}
+.pg{display:flex;gap:3px;align-items:center;justify-content:center;margin-top:5px}.pg button{padding:2px 6px;border:1px solid var(--brd);background:var(--bg3);color:var(--tx2);border-radius:3px;cursor:pointer;font-size:9px;font-family:inherit}.pg button:disabled{opacity:.2}
+.ld{display:flex;align-items:center;justify-content:center;height:30vh;flex-direction:column;gap:6px}.sp{width:20px;height:20px;border:2px solid var(--brd);border-top-color:var(--ac);border-radius:50%;animation:s .7s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
+.xp{color:var(--gol)}.xn{color:var(--mis)}
+.legend{display:flex;gap:8px;margin:4px 0;font-size:8px;flex-wrap:wrap}.legend span{display:flex;align-items:center;gap:2px}.legend .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.det{background:var(--bg3);border:1px solid var(--brd);border-radius:4px;padding:6px 8px;margin-top:6px;font-size:10px;min-height:20px}.det a{color:var(--ac);text-decoration:none}.det a:hover{text-decoration:underline}
+.fold{border:1px solid var(--brd);border-radius:4px;margin-top:8px}.fold summary{padding:6px 8px;cursor:pointer;font-size:10px;color:var(--tx2);font-weight:500}.fold summary:hover{color:var(--ac)}
+.fold .fc{padding:6px 8px;max-height:300px;overflow-y:auto}
+.hm-wrap{position:relative;display:inline-block}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.ct{padding:6px}.hdr,.fil{padding:5px 8px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useMemo,useCallback}=React;
+const AS=['2023-24','2024-25','2025-26'],AT=['HIFK','HPK','Ilves','K-Espoo','KalPa','Kuortane','Kärpät','RoKi','TPS'];
+const EN=['Ohi','Maali','Torjunta','Peitetty'];
+const SDS=['5v5','5v4','5v3','4v5','4v4','4v3','3v5','3v4','3v3'];
+const f1=v=>v==null||isNaN(v)?'':String(Math.round(v*10)/10).replace('.',',');
+const f2=v=>v==null||isNaN(v)?'':String(Math.round(v*100)/100).replace('.',',');
+const f3=v=>v==null||isNaN(v)?'':String(Math.round(v*1000)/1000).replace('.',',');
+
+function C({o,sel,set}){return<div className="cr">{o.map(x=><button key={x} className={`ch${sel.includes(x)?' on':''}`} onClick={()=>set(sel.includes(x)?sel.filter(z=>z!==x):[...sel,x])}>{x}</button>)}</div>}
+
+function MultiSel({options,sel,set,label}){
+  return<select multiple value={sel} onChange={e=>{const v=[...e.target.selectedOptions].map(o=>o.value);set(v)}} style={{minHeight:55,fontSize:9}}>
+    {options.map(o=><option key={o} value={o}>{o}</option>)}
+  </select>;
+}
+
+// Half-rink (attack zone only)
+function Rink({shots,sel,setSel,maxH=360}){
+  const w=650,h=470,ox=320,sc=w/(1024-ox);
+  const cols={0:'rgba(239,68,68,.15)',1:'rgba(34,197,94,.7)',2:'rgba(6,182,212,.12)',3:'rgba(99,102,241,.12)'};
+  const sz={0:1.8,1:3.5,2:1.8,3:1.8};
+  const shown=shots.filter(s=>!s.bc).slice(0,12000);
+  return(<svg viewBox={`0 0 ${w} ${h}`} style={{width:'100%',maxHeight:maxH,background:'#111827',borderRadius:6,cursor:'crosshair'}}
+    onClick={e=>{const r=e.currentTarget.getBoundingClientRect();const mx=(e.clientX-r.left)/r.width*w,my=(e.clientY-r.top)/r.height*h;let best=null,bd=999;shown.forEach((s,i)=>{const sx=(s.x-ox)*sc,sy=s.y;const d=Math.sqrt((sx-mx)**2+(sy-my)**2);if(d<bd){bd=d;best=i}});if(best!==null&&bd<12)setSel(shown[best])}}>
+    <rect x={1} y={1} width={w-2} height={h-2} rx={20} fill="none" stroke="#2a3450" strokeWidth={1.5}/>
+    <line x1={(954-ox)*sc} y1={0} x2={(954-ox)*sc} y2={h} stroke="#ef4444" strokeWidth={.8} opacity={.2}/>
+    <line x1={(634-ox)*sc} y1={0} x2={(634-ox)*sc} y2={h} stroke="#38bdf8" strokeWidth={1} opacity={.15}/>
+    <rect x={(942-ox)*sc} y={h/2-14} width={12*sc} height={28} rx={2} fill="none" stroke="#ef4444" strokeWidth={1.5} opacity={.5}/>
+    {[[849,146],[849,373]].map(([cx,cy],i)=><circle key={i} cx={(cx-ox)*sc} cy={cy} r={70*sc} fill="none" stroke="#ef4444" strokeWidth={.6} opacity={.08}/>)}
+    {shown.map((s,i)=>{const sx=(s.x-ox)*sc,sy=s.y;if(sx<-3)return null;return<circle key={i} cx={sx} cy={sy} r={sz[s.e]||1.8} fill={cols[s.e]||'#888'} stroke={s.e===1?"rgba(255,255,255,.6)":"none"} strokeWidth={s.e===1?.5:0}/>})}
+  </svg>);
+}
+
+// Vertical half-rink for player analysis (goal at bottom)
+function VRink({shots,maxW=280}){
+  // Rotate 90°: original x→y(inverted), original y→x
+  const w=280,h=350,filtered=shots.filter(s=>!s.bc&&s.x>400);
+  if(!filtered.length)return<div style={{color:'var(--tx3)',fontSize:9,padding:10}}>Ei dataa</div>;
+  // Map: orig (400-1024) → new y (0-h, goal at bottom=h), orig (0-514)→ new x (0-w)
+  const mapX=oy=>oy/514*w;
+  const mapY=ox=>(1-(ox-400)/(1024-400))*h;
+  // Heatmap grid
+  const grid=Array.from({length:14},()=>Array(10).fill(0));
+  const xgGrid=Array.from({length:14},()=>Array(10).fill(0));
+  filtered.forEach(s=>{const nx=Math.floor(mapX(s.y)/w*10),ny=Math.floor(mapY(s.x)/h*14);if(nx>=0&&nx<10&&ny>=0&&ny<14){grid[ny][nx]++;xgGrid[ny][nx]+=s.xg}});
+  const maxV=Math.max(...grid.flat(),1);
+  return(<svg viewBox={`0 0 ${w} ${h}`} style={{width:maxW,background:'#111827',borderRadius:5}}>
+    {grid.map((row,ri)=>row.map((v,ci)=>{if(!v)return null;const cw=w/10,ch=h/14;const op=Math.min(v/maxV,.8)+.1;return<rect key={`${ri}-${ci}`} x={ci*cw} y={ri*ch} width={cw} height={ch} fill={`rgba(56,189,248,${op})`} rx={1}/>}))}
+    {/* Goal at bottom */}
+    <rect x={w/2-20} y={h-4} width={40} height={4} fill="#ef4444" rx={1}/>
+    <text x={w/2} y={h-8} textAnchor="middle" fill="#666" fontSize={7}>MAALI</text>
+  </svg>);
+}
+
+function GN({shots}){
+  const gs=shots.filter(s=>s.e===1&&s.gx>0&&s.gy>0);
+  if(!gs.length)return<div style={{color:'var(--tx3)',fontSize:9,padding:10}}>Ei osumapaikkadataa (2023-25)</div>;
+  const w=200,h=140,sx=w/200,sy=h/140;
+  const q=[0,0,0,0];gs.forEach(g=>{const r=g.gx>100?1:0,b=g.gy>70?2:0;q[r+b]++});const tot=gs.length;
+  return(<div>
+    <svg viewBox={`0 0 ${w} ${h}`} style={{background:'#1a2236',borderRadius:4,border:'1.5px solid var(--mis)',display:'block',margin:'0 auto',maxWidth:200}}>
+      <line x1={0} y1={h/2} x2={w} y2={h/2} stroke="#444" strokeWidth={.4}/><line x1={w/2} y1={0} x2={w/2} y2={h} stroke="#444" strokeWidth={.4}/>
+      {gs.map((g,i)=><circle key={i} cx={g.gx*sx} cy={g.gy*sy} r={3} fill="var(--gol)" opacity={.4} stroke="#fff" strokeWidth={.3}/>)}
+    </svg>
+    <div style={{display:'flex',justifyContent:'center',gap:10,marginTop:4,fontSize:8}}>
+      {['VY','OY','VA','OA'].map((l,i)=><span key={i} style={{color:'var(--tx2)'}}>{l}: <b>{q[i]}</b> ({tot?(q[i]/tot*100).toFixed(0):0}%)</span>)}
+    </div>
+  </div>);
+}
+
+function SC({t,v,s}){return<div className="cd"><h3>{t}</h3><div className="big m">{v}</div>{s&&<div className="sub">{s}</div>}</div>}
+
+function T({cols,data,ps=50,hl='',legend=''}){
+  const[so,setSo]=useState({c:null,a:false});const[pg,setPg]=useState(0);
+  const sd=useMemo(()=>{if(!so.c)return data;return[...data].sort((a,b)=>{let va=a[so.c],vb=b[so.c];if(typeof va==='string')va=va.toLowerCase();if(typeof vb==='string')vb=vb.toLowerCase();if(va==null||va==='')return 1;if(vb==null||vb==='')return-1;return so.a?(va>vb?1:-1):(va<vb?1:-1)})},[data,so]);
+  const paged=sd.slice(pg*ps,(pg+1)*ps),pages=Math.ceil(sd.length/ps);
+  useEffect(()=>setPg(0),[data]);
+  return<div>{legend&&<div className="leg">{legend}</div>}<div className="stb"><table><thead><tr>{cols.map(c=><th key={c.k} className={c.n?'n':''} onClick={()=>setSo({c:c.k,a:so.c===c.k?!so.a:false})} style={{color:so.c===c.k?'var(--ac)':undefined}}>{c.l}{so.c===c.k?(so.a?' ↑':' ↓'):''}</th>)}</tr></thead>
+  <tbody>{paged.map((r,i)=>{const ih=hl&&r.tm===hl;return<tr key={i} style={ih?{background:'rgba(245,158,11,.05)'}:undefined}>{cols.map(c=>{let v=c.f?c.f(r[c.k],r):r[c.k];const st={};if(c.k==='tm'&&ih){st.color='var(--ilv)';st.fontWeight=600}if(c.k==='xgd'||c.k==='gsax'){const nv=typeof v==='number'?v:parseFloat(String(v).replace(',','.'));if(!isNaN(nv))st.color=nv>0?'var(--gol)':'var(--mis)'}return<td key={c.k} className={c.n?'n':''} style={st}>{v}</td>})}</tr>})}</tbody></table></div>
+  {pages>1&&<div className="pg"><button disabled={pg===0} onClick={()=>setPg(pg-1)}>←</button><span className="m" style={{fontSize:8,color:'var(--tx3)'}}>{pg+1}/{pages} ({sd.length})</span><button disabled={pg>=pages-1} onClick={()=>setPg(pg+1)}>→</button></div>}</div>;
+}
+
+function App(){
+  const[tab,setTab]=useState('standings');const[ss,setSs]=useState(['2025-26']);
+  const[teams,setTeams]=useState([]);const[players,setPlayers]=useState([]);const[shots,setShots]=useState([]);const[gamesD,setGamesD]=useState([]);
+  const[ld,setLd]=useState(true);const[sld,setSld]=useState(false);
+  // Standings
+  const[stTeams,setStTeams]=useState([...AT]);const[stFold,setStFold]=useState(false);
+  // Shotmap
+  const[sTm,setSTm]=useState('');const[sTypes,setSTypes]=useState([0,1,2,3]);const[sSd,setSsd]=useState([]);
+  const[sPlayer,setSPlayer]=useState('');const[sOpps,setSOpps]=useState([]);const[sGk,setSGk]=useState('');
+  const[selShot,setSelShot]=useState(null);
+  // Goalies
+  const[gkF,setGkF]=useState('');const[gkTm,setGkTm]=useState('');
+  // Players
+  const[pS,setPS]=useState('');const[pPos,setPPos]=useState('');const[pMSh,setPMSh]=useState(0);const[pMGp,setPMGp]=useState(0);const[pTm,setPTm]=useState('');const[hlTm,setHlTm]=useState('');const[pOpps,setPOpps]=useState([]);
+  // Shots list
+  const[lS,setLS]=useState('');const[lGk,setLGk]=useState('');const[lBl,setLBl]=useState('');const[lTm,setLTm]=useState('');
+  // Player analysis
+  const[pa1,setPa1]=useState('');const[pa2,setPa2]=useState('');const[paOpps,setPaOpps]=useState([]);const[paSd,setPaSd]=useState([]);
+  // Team analysis
+  const[taTm,setTaTm]=useState('Ilves');const[taOpps,setTaOpps]=useState([]);const[taSd,setTaSd]=useState([]);
+
+  useEffect(()=>{Promise.all([fetch('data/teams.json').then(r=>r.json()),fetch('data/players.json').then(r=>r.json()),fetch('data/games.json').then(r=>r.json())]).then(([t,p,g])=>{setTeams(t);setPlayers(p);setGamesD(g);setLd(false)})},[]);
+  const loadS=useCallback(()=>{if(!sld)fetch('data/shots.json').then(r=>r.json()).then(d=>{setShots(d);setSld(true)})},[sld]);
+  useEffect(()=>{if(['shotmap','shots','goalies','panalysis','tanalysis'].includes(tab))loadS()},[tab]);
+
+  // All player names for dropdowns
+  const allPlayers=useMemo(()=>{const s=new Set();players.filter(p=>ss.includes(p.s)).forEach(p=>s.add(p.n));return[...s].sort()},[players,ss]);
+
+  // Filtered shots helper
+  const filterShots=(extra={})=>{
+    if(!shots.length)return[];
+    let f=shots.filter(s=>ss.includes(s.s)&&!s.bc);
+    if(extra.tm)f=f.filter(s=>s.tm===extra.tm);
+    if(extra.types&&extra.types.length<4)f=f.filter(s=>extra.types.includes(s.e));
+    if(extra.sd&&extra.sd.length)f=f.filter(s=>extra.sd.includes(s.sd));
+    if(extra.player)f=f.filter(s=>s.sn.toLowerCase().includes(extra.player.toLowerCase()));
+    if(extra.opps&&extra.opps.length)f=f.filter(s=>extra.opps.includes(s.opp));
+    if(extra.gk)f=f.filter(s=>s.bn.toLowerCase().includes(extra.gk.toLowerCase()));
+    return f;
+  };
+
+  const fS=useMemo(()=>filterShots({tm:sTm,types:sTypes,sd:sSd,player:sPlayer,opps:sOpps,gk:sGk}),[shots,ss,sTm,sTypes,sSd,sPlayer,sOpps,sGk]);
+  const sum=useMemo(()=>{const f=fS;if(!f.length)return null;const g=f.filter(s=>s.e===1).length,t=f.length,xg=f.reduce((a,s)=>a+s.xg,0),sv=f.filter(s=>s.e===2).length;return{g,t,xg,sh:g+sv?g/(g+sv)*100:0,gxg:g-xg,sv,rb:f.filter(s=>s.rb).length,pp:f.filter(s=>s.str==='PP').length}},[fS]);
+
+  // Goalie data
+  const goalies=useMemo(()=>{if(!shots.length)return[];const m={};shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc).forEach(s=>{if(!s.bn)return;if(!m[s.bn])m[s.bn]={n:s.bn,sv:0,ga:0,xga:0,gp:new Set()};if(s.e===2)m[s.bn].sv++;if(s.e===1){m[s.bn].ga++;m[s.bn].xga+=s.xg}m[s.bn].gp.add(s.g)});
+  return Object.values(m).filter(g=>g.sv>=10).map(g=>({...g,gp_n:g.gp.size,sv_pct:g.sv/(g.sv+g.ga)*100,gsax:g.xga-g.ga})).sort((a,b)=>{const an=a.n.split(' '),bn=b.n.split(' ');return an[an.length-1].localeCompare(bn[bn.length-1])})},[shots,ss]);
+
+  const gkShots=useMemo(()=>{if(!shots.length)return[];let f=shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc);if(gkF)f=f.filter(s=>s.bn===gkF);if(gkTm)f=f.filter(s=>s.tm===gkTm);return f},[shots,ss,gkF,gkTm]);
+
+  // Players aggregated
+  const fP=useMemo(()=>{let base=players.filter(p=>ss.includes(p.s));
+    // If opponent filter active, we need to recompute from shots
+    // For simplicity, use pre-aggregated data when no opp filter
+    const agg={};base.forEach(p=>{const k=p.n;if(!agg[k])agg[k]={n:p.n,tm:p.tm,pos:p.pos,sh:0,g:0,a:0,xg:0,rb:0,toi:0,gp:0,bl:0,blxg:0,_tpg_s:0,_tpg_n:0};
+      const a=agg[k];a.sh+=p.sh;a.g+=p.g;a.a+=p.a;a.xg+=p.xg;a.rb+=p.rb;a.toi+=p.toi;a.gp+=p.gp;a.bl+=p.bl;a.blxg+=p.blxg;if(p.tpg>0){a._tpg_s+=p.tpg;a._tpg_n++}if(p.tm)a.tm=p.tm;if(p.pos)a.pos=p.pos});
+    let arr=Object.values(agg).map(a=>({...a,xgd:a.g-a.xg,tpg:a._tpg_n?a._tpg_s/a._tpg_n:0,xg60:a.toi>0?a.xg/a.toi*60:0}));
+    if(pTm)arr=arr.filter(p=>p.tm===pTm);
+    if(pPos==='H')arr=arr.filter(p=>p.pos==='H');
+    if(pPos==='P')arr=arr.filter(p=>p.pos==='P');
+    if(pMSh>0)arr=arr.filter(p=>p.sh>=pMSh);if(pMGp>0)arr=arr.filter(p=>p.gp>=pMGp);
+    if(pS)arr=arr.filter(p=>p.n.toLowerCase().includes(pS.toLowerCase()));
+    return arr},[players,ss,pTm,pPos,pMSh,pMGp,pS]);
+
+  // Shots list
+  const fLS=useMemo(()=>{if(!shots.length)return[];let f=shots.filter(s=>ss.includes(s.s));if(lTm)f=f.filter(s=>s.tm===lTm);if(lS)f=f.filter(s=>s.sn.toLowerCase().includes(lS.toLowerCase()));if(lGk)f=f.filter(s=>s.bgk&&s.bn.toLowerCase().includes(lGk.toLowerCase()));if(lBl)f=f.filter(s=>!s.bgk&&s.e===3&&s.bn.toLowerCase().includes(lBl.toLowerCase()));return f},[shots,ss,lTm,lS,lGk,lBl]);
+
+  // Standings computed from games
+  const stData=useMemo(()=>{
+    const selGames=gamesD.filter(g=>ss.includes(g.s)&&stTeams.includes(g.h)&&stTeams.includes(g.a));
+    const a={};stTeams.forEach(t=>a[t]={tm:t,gp:0,w:0,wot:0,lot:0,l:0,pts:0,gf:0,ga:0});
+    selGames.forEach(g=>{[g.h,g.a].forEach((t,ti)=>{if(!a[t])return;a[t].gp++;const hm=ti===0;const gf=hm?g.hg:g.ag,ga=hm?g.ag:g.hg;a[t].gf+=gf;a[t].ga+=ga;const won=gf>ga,ot=g.ft===2||g.ft===3;if(won&&ot)a[t].wot++;else if(won)a[t].w++;else if(ot)a[t].lot++;else a[t].l++;a[t].pts=a[t].w*3+a[t].wot*2+a[t].lot})});
+    // Compute L%/T% from filtered shots data
+    if(sld){const fGids=new Set(selGames.map(g=>g.id));
+      stTeams.forEach(t=>{const ts=shots.filter(s=>fGids.has(s.g)&&s.tm===t&&!s.bc);const sa=shots.filter(s=>fGids.has(s.g)&&s.opp===t&&!s.bc);
+        const sog_f=ts.filter(s=>s.e===1||s.e===2);const sog_a=sa.filter(s=>s.e===1||s.e===2);
+        a[t].sh_pct=sog_f.length?ts.filter(s=>s.e===1).length/sog_f.length*100:0;
+        a[t].sv_pct=sog_a.length?(1-sa.filter(s=>s.e===1).length/sog_a.length)*100:0})}
+    return Object.values(a).filter(x=>x.gp>0).sort((x,y)=>y.pts===x.pts?(y.gf-y.ga)-(x.gf-x.ga):y.pts-x.pts);
+  },[gamesD,ss,stTeams,shots,sld]);
+
+  const stGames=useMemo(()=>gamesD.filter(g=>ss.includes(g.s)&&stTeams.includes(g.h)&&stTeams.includes(g.a)).sort((a,b)=>a.d.localeCompare(b.d)),[gamesD,ss,stTeams]);
+
+  // Player analysis data
+  const paData=(name)=>{if(!name||!shots.length)return{shots:[],sh:0,g:0,a:0,xg:0,gp:0,toi:0};
+    let f=shots.filter(s=>ss.includes(s.s)&&s.sn===name&&!s.bc);
+    if(paOpps.length)f=f.filter(s=>paOpps.includes(s.opp));if(paSd.length)f=f.filter(s=>paSd.includes(s.sd));
+    const pi=players.filter(p=>ss.includes(p.s)&&p.n===name);const toi=pi.reduce((a,p)=>a+p.toi,0);const gp=pi.reduce((a,p)=>a+p.gp,0);const assists=pi.reduce((a,p)=>a+p.a,0);
+    return{shots:f,sh:f.length,g:f.filter(s=>s.e===1).length,a:assists,xg:f.reduce((a,s)=>a+s.xg,0),gp,toi}};
+
+  // Team analysis data
+  const taData=useMemo(()=>{if(!taTm||!shots.length)return null;
+    let f=shots.filter(s=>ss.includes(s.s)&&s.tm===taTm&&!s.bc);let fa=shots.filter(s=>ss.includes(s.s)&&s.opp===taTm&&!s.bc);
+    if(taOpps.length){f=f.filter(s=>taOpps.includes(s.opp));fa=fa.filter(s=>taOpps.includes(s.tm))}
+    if(taSd.length){f=f.filter(s=>taSd.includes(s.sd));fa=fa.filter(s=>taSd.includes(s.sd))}
+    const sog_f=f.filter(s=>s.e===1||s.e===2),sog_a=fa.filter(s=>s.e===1||s.e===2);
+    return{sf:f,sa:fa,sh_f:f.length,sh_a:fa.length,g_f:f.filter(s=>s.e===1).length,g_a:fa.filter(s=>s.e===1).length,
+      xgf:f.reduce((a,s)=>a+s.xg,0),xga:fa.reduce((a,s)=>a+s.xg,0),
+      sh_pct:sog_f.length?f.filter(s=>s.e===1).length/sog_f.length*100:0,
+      sv_pct:sog_a.length?(1-fa.filter(s=>s.e===1).length/sog_a.length)*100:0,
+      pp_f:f.filter(s=>s.str==='PP'),sh_f_pp:f.filter(s=>s.str==='PP').length}
+  },[shots,ss,taTm,taOpps,taSd]);
+
+  if(ld)return<div className="ld"><div className="sp"/></div>;
+  const SC_=<div className="fg"><label>Kaudet</label><C o={AS} sel={ss} set={setSs}/></div>;
+
+  return(<div>
+    <div className="hdr"><h1>🏒 <b>Aurora</b>liiga Analytics</h1>
+      <div className="nav">{[['standings','Taulukko'],['shotmap','Laukaisukartta'],['goalies','Maalivahdit'],['players','Pelaajat'],['shots','Laukaukset'],['panalysis','Pelaaja-analyysi'],['tanalysis','Joukkue-analyysi']].map(([k,v])=><button key={k} className={`nb${tab===k?' on':''}`} onClick={()=>setTab(k)}>{v}</button>)}</div>
+    </div>
+
+    {/* TAULUKKO */}
+    {tab==='standings'&&<div>
+      <div className="fil">{SC_}<div className="fg"><label>Joukkueet</label><C o={AT} sel={stTeams} set={setStTeams}/></div></div>
+      <div className="ct"><div className="cd">
+        <T legend="O=Ottelut V=Voitot VJ=JA-voitto HJ=JA-häviö H=Häviöt P=Pisteet TM=Tehdyt maalit PM=Päästetyt ME=Maaliero L%=Laukaisuprosentti T%=Torjuntaprosentti" cols={[{k:'tm',l:'Joukkue'},{k:'gp',l:'O',n:1},{k:'w',l:'V',n:1},{k:'wot',l:'VJ',n:1},{k:'lot',l:'HJ',n:1},{k:'l',l:'H',n:1},{k:'pts',l:'P',n:1},{k:'gf',l:'TM',n:1},{k:'ga',l:'PM',n:1},{k:'me',l:'ME',n:1,f:(_,r)=>{const v=r.gf-r.ga;return(v>0?'+':'')+v}},{k:'sh_pct',l:'L%',n:1,f:v=>v?f1(v)+'%':''},{k:'sv_pct',l:'T%',n:1,f:v=>v?f1(v)+'%':''}]} data={stData} ps={9}/>
+        <details className="fold"><summary>Huomioidut ottelut ({stGames.length})</summary>
+          <div className="fc"><table><thead><tr><th>Kausi</th><th>Pvm</th><th>Ottelu</th><th>Tulos</th><th>↗</th></tr></thead>
+            <tbody>{stGames.map((g,i)=><tr key={i}><td>{g.s.slice(2)}</td><td>{g.d}</td><td>{g.h}–{g.a}</td><td className="m">{g.hg}–{g.ag}{g.ft===2?' JA':g.ft===3?' VL':''}</td><td><a href={g.url} target="_blank" rel="noopener" style={{color:'var(--ac)',fontSize:9}}>↗</a></td></tr>)}</tbody></table></div>
+        </details>
+      </div></div>
+    </div>}
+
+    {/* LAUKAISUKARTTA */}
+    {tab==='shotmap'&&<div>
+      <div className="fil">{SC_}
+        <div className="fg"><label>Joukkue</label><select value={sTm} onChange={e=>setSTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
+        <div className="fg"><label>Tyyppi</label><C o={EN} sel={sTypes.map(t=>EN[t])} set={s=>setSTypes(s.map(x=>EN.indexOf(x)))}/></div>
+        <div className="fg"><label>Pelitilanne</label><C o={SDS} sel={sSd} set={setSsd}/></div>
+        <div className="fg"><label>Laukaisija</label><input type="text" value={sPlayer} onChange={e=>setSPlayer(e.target.value)} placeholder="Nimi..."/></div>
+        <div className="fg"><label>Vastustaja</label><C o={AT} sel={sOpps} set={setSOpps}/></div>
+        <div className="fg"><label>Maalivahti</label><input type="text" value={sGk} onChange={e=>setSGk(e.target.value)} placeholder="Nimi..."/></div>
+      </div>
+      <div className="ct">{!sld?<div className="ld"><div className="sp"/></div>:<>
+        {sum&&<div className="g4" style={{marginBottom:8}}>
+          <SC t="Laukaukset" v={sum.t.toLocaleString('fi')} s={`${sum.pp} YV · ${sum.rb} reb`}/>
+          <SC t="Maalit / xG" v={`${sum.g} / ${f1(sum.xg)}`}/>
+          <SC t="L%" v={f1(sum.sh)+'%'} s={`${sum.g}M / ${sum.g+sum.sv} LMK`}/>
+          <SC t="G − xG" v={(sum.gxg>0?'+':'')+f1(sum.gxg)}/>
+        </div>}
+        <div className="cd">
+          <h3>Hyökkäyspääty ({fS.length>12000?`12 000 / ${fS.length}`:fS.length}) — klikkaa laukausta</h3>
+          <div className="legend"><span><div className="dot" style={{background:'var(--gol)'}}/>Maali</span><span><div className="dot" style={{background:'var(--sav)'}}/>Torjunta</span><span><div className="dot" style={{background:'var(--blk)'}}/>Peitetty</span><span><div className="dot" style={{background:'var(--mis)'}}/>Ohi</span></div>
+          <Rink shots={fS} sel={selShot} setSel={setSelShot} maxH={320}/>
+          <div className="det">{selShot?<span>{EN[selShot.e]} · <b>{selShot.sn}</b> #{selShot.sj} ({selShot.tm}) vs {selShot.opp} · {Math.floor(selShot.t/60)}:{String(selShot.t%60).padStart(2,'0')} P{selShot.p} · {f1(selShot.d)}m · xG {f3(selShot.xg)} · {selShot.sd} {selShot.rb?'REB ':''}{selShot.gt||''} · {selShot.bgk?'MV':'BL'}: {selShot.bn} · <a href={selShot.url} target="_blank">Avaa ottelu ↗</a></span>:'Klikkaa laukausta'}</div>
+        </div>
+      </>}</div>
+    </div>}
+
+    {/* MAALIVAHDIT */}
+    {tab==='goalies'&&<div>
+      <div className="fil">{SC_}
+        <div className="fg"><label>Maalivahti</label><select value={gkF} onChange={e=>setGkF(e.target.value)}><option value="">Kaikki</option>
+          {goalies.map(g=>{const p=g.n.split(' ');const d=p.length>1?`${p.slice(-1)[0]} ${p.slice(0,-1).join(' ')}`:g.n;return<option key={g.n} value={g.n}>{d} — {g.tm}</option>})}
+        </select></div>
+        <div className="fg"><label>Laukaiseva joukkue</label><select value={gkTm} onChange={e=>setGkTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
+      </div>
+      <div className="ct">{!sld?<div className="ld"><div className="sp"/></div>:
+        <div className="g2">
+          <div className="cd"><h3>Osumapaikat {gkF&&`— ${gkF}`}</h3><GN shots={gkShots}/><div className="leg">Osumapaikkadata saatavilla kausilta 23-25. Kaudelta 25-26 tulospalvelu ei tarjoa GoalX/GoalY-dataa. VY=Vasen ylä OY=Oikea ylä VA=Vasen ala OA=Oikea ala.</div></div>
+          <div className="cd"><h3>Maalivahdit</h3>
+            <T legend="O=Ottelut Torj=Torjunnat PM=Päästetyt maalit T%=Torjuntaprosentti xGA=Odotetut päästetyt (laukauksista maalia kohti) GSAx=Torjunnat yli odotusarvon (xGA−PM)" cols={[{k:'n',l:'MV'},{k:'tm',l:'Joukkue'},{k:'gp_n',l:'O',n:1},{k:'sv',l:'Torj',n:1},{k:'ga',l:'PM',n:1},{k:'sv_pct',l:'T%',n:1,f:v=>f1(v)+'%'},{k:'xga',l:'xGA',n:1,f:v=>f1(v)},{k:'gsax',l:'GSAx',n:1,f:v=>(v>0?'+':'')+f1(v)}]} data={goalies} ps={50}/>
+          </div>
+        </div>
+      }</div>
+    </div>}
+
+    {/* PELAAJAT */}
+    {tab==='players'&&<div>
+      <div className="fil">{SC_}
+        <div className="fg"><label>Joukkue</label><select value={pTm} onChange={e=>setPTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
+        <div className="fg"><label>Korosta</label><select value={hlTm} onChange={e=>setHlTm(e.target.value)}><option value="">-</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
+        <div className="fg"><label>Pelipaikka</label><C o={['H','P']} sel={pPos?[pPos]:[]} set={s=>setPPos(s.length?s[s.length-1]:'')}/></div>
+        <div className="fg"><label>Hae</label><input type="text" value={pS} onChange={e=>setPS(e.target.value)} placeholder="Nimi..."/></div>
+        <div className="fg"><label>Min lk</label><input type="number" value={pMSh||''} onChange={e=>setPMSh(+e.target.value||0)} min={0}/></div>
+        <div className="fg"><label>Min pelit</label><input type="number" value={pMGp||''} onChange={e=>setPMGp(+e.target.value||0)} min={0}/></div>
+      </div>
+      <div className="ct"><div className="cd"><h3>Pelaajat ({fP.length})</h3>
+        <T hl={hlTm} legend="O=Ottelut Lk=Laukaukset M=Maalit S=Syötöt xG=Maaliodottama G-xG=Maalit−xG RB=Rebound BL=Blokatut laukaukset BLxG=Blokattujen xG TOI=Peliaika(min) TOI/G=Per ottelu xG/60=xG per 60min jääaikaa"
+          cols={[{k:'n',l:'Pelaaja'},{k:'tm',l:'Joukkue'},{k:'pos',l:'PP'},{k:'gp',l:'O',n:1},{k:'sh',l:'Lk',n:1},{k:'g',l:'M',n:1},{k:'a',l:'S',n:1},
+            {k:'xg',l:'xG',n:1,f:v=>f1(v)},{k:'xgd',l:'G-xG',n:1,f:v=>(v>0?'+':'')+f1(v)},
+            {k:'rb',l:'RB',n:1},{k:'bl',l:'BL',n:1},{k:'blxg',l:'BLxG',n:1,f:v=>f1(v)},
+            {k:'toi',l:'TOI',n:1,f:v=>v?Math.round(v):''},{k:'tpg',l:'TOI/G',n:1,f:v=>v?f1(v):''},
+            {k:'xg60',l:'xG/60',n:1,f:v=>v?f2(v):''}]}
+          data={fP} ps={50}/>
+      </div></div>
+    </div>}
+
+    {/* LAUKAUKSET */}
+    {tab==='shots'&&<div>
+      <div className="fil">{SC_}
+        <div className="fg"><label>Joukkue</label><select value={lTm} onChange={e=>setLTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
+        <div className="fg"><label>Laukoja</label><input type="text" value={lS} onChange={e=>setLS(e.target.value)} placeholder="Nimi..."/></div>
+        <div className="fg"><label>Maalivahti</label><input type="text" value={lGk} onChange={e=>setLGk(e.target.value)} placeholder="Nimi..."/></div>
+        <div className="fg"><label>Blokkaaja</label><input type="text" value={lBl} onChange={e=>setLBl(e.target.value)} placeholder="Nimi..."/></div>
+      </div>
+      <div className="ct">{!sld?<div className="ld"><div className="sp"/></div>:
+        <div className="cd"><h3>Laukaukset ({fLS.length.toLocaleString('fi')})</h3>
+          <T legend="Et.=Etäisyys(m) Kulma=Näkyvä maalikulma(°) xG=Maaliodottama Til.=EV/PP/SH Vahv.=Esim 5v4"
+            cols={[{k:'s',l:'Kausi'},{k:'g',l:'Ottelu',n:1},{k:'p',l:'Erä',n:1},
+              {k:'_t',l:'Aika',f:(_,r)=>`${Math.floor(r.t/60)}:${String(r.t%60).padStart(2,'0')}`},
+              {k:'tm',l:'Joukkue'},{k:'opp',l:'Vast.'},{k:'sn',l:'Laukaisija'},
+              {k:'_e',l:'Tulos',f:(_,r)=>EN[r.e]},
+              {k:'_gk',l:'Maalivahti',f:(_,r)=>r.bgk?r.bn:''},
+              {k:'_bl',l:'Blokkaaja',f:(_,r)=>!r.bgk&&r.e===3?r.bn:''},
+              {k:'d',l:'Et.',n:1,f:v=>f1(v)+'m'},{k:'va',l:'Kulma',n:1,f:v=>f1(v)+'°'},
+              {k:'xg',l:'xG',n:1,f:v=>f3(v)},{k:'sd',l:'Vahv.'},{k:'gt',l:'Tyyppi'},
+              {k:'_u',l:'↗',f:(_,r)=><a href={r.url} target="_blank" rel="noopener" style={{color:'var(--ac)',fontSize:9}}>↗</a>}
+            ]} data={fLS} ps={100}/>
+        </div>
+      }</div>
+    </div>}
+
+    {/* PELAAJA-ANALYYSI */}
+    {tab==='panalysis'&&<div>
+      <div className="fil">{SC_}
+        <div className="fg"><label>Pelaaja 1</label><select value={pa1} onChange={e=>setPa1(e.target.value)}><option value="">Valitse...</option>{allPlayers.map(p=><option key={p}>{p}</option>)}</select></div>
+        <div className="fg"><label>Pelaaja 2</label><select value={pa2} onChange={e=>setPa2(e.target.value)}><option value="">Valitse...</option>{allPlayers.map(p=><option key={p}>{p}</option>)}</select></div>
+        <div className="fg"><label>Vastustaja</label><C o={AT} sel={paOpps} set={setPaOpps}/></div>
+        <div className="fg"><label>Pelitilanne</label><C o={SDS} sel={paSd} set={setPaSd}/></div>
+      </div>
+      <div className="ct">{!sld?<div className="ld"><div className="sp"/></div>:
+        <div className="g2">
+          {[pa1,pa2].map((pn,idx)=>{
+            if(!pn)return<div key={idx} className="cd" style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:200,color:'var(--tx3)'}}>Valitse pelaaja {idx+1}</div>;
+            const d=paData(pn);
+            return<div key={idx} className="cd">
+              <h3>{pn}</h3>
+              <div className="g2" style={{marginBottom:8}}>
+                <div><span style={{fontSize:9,color:'var(--tx3)'}}>Laukaukset</span> <span className="m" style={{fontSize:14}}>{d.sh}</span></div>
+                <div><span style={{fontSize:9,color:'var(--tx3)'}}>Maalit</span> <span className="m" style={{fontSize:14}}>{d.g}</span></div>
+              </div>
+              <table style={{fontSize:9,marginBottom:6}}><tbody>
+                <tr><td style={{color:'var(--tx3)'}}>Ottelut</td><td className="n m">{d.gp}</td><td style={{color:'var(--tx3)'}}>TOI</td><td className="n m">{d.toi?Math.round(d.toi)+'min':'-'}</td></tr>
+                <tr><td style={{color:'var(--tx3)'}}>Syötöt</td><td className="n m">{d.a}</td><td style={{color:'var(--tx3)'}}>xG</td><td className="n m">{f1(d.xg)}</td></tr>
+                <tr><td style={{color:'var(--tx3)'}}>xG/60</td><td className="n m">{d.toi?f2(d.xg/d.toi*60):'-'}</td><td style={{color:'var(--tx3)'}}>G-xG</td><td className={`n m ${d.g-d.xg>0?'xp':'xn'}`}>{(d.g-d.xg>0?'+':'')+f1(d.g-d.xg)}</td></tr>
+              </tbody></table>
+              <div style={{fontSize:8,color:'var(--tx3)',marginBottom:3}}>Laukaustiheys</div>
+              <VRink shots={d.shots} maxW={260}/>
+            </div>
+          })}
+        </div>
+      }</div>
+    </div>}
+
+    {/* JOUKKUE-ANALYYSI */}
+    {tab==='tanalysis'&&<div>
+      <div className="fil">{SC_}
+        <div className="fg"><label>Joukkue</label><select value={taTm} onChange={e=>setTaTm(e.target.value)}>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
+        <div className="fg"><label>Vastustaja</label><C o={AT.filter(t=>t!==taTm)} sel={taOpps} set={setTaOpps}/></div>
+        <div className="fg"><label>Pelitilanne</label><C o={SDS} sel={taSd} set={setTaSd}/></div>
+      </div>
+      <div className="ct">{!sld||!taData?<div className="ld"><div className="sp"/></div>:
+        <div>
+          <div className="g4" style={{marginBottom:10}}>
+            <SC t={`${taTm} laukaukset`} v={taData.sh_f}/>
+            <SC t="Maalit / xGF" v={`${taData.g_f} / ${f1(taData.xgf)}`}/>
+            <SC t="L%" v={f1(taData.sh_pct)+'%'}/>
+            <SC t="G−xG" v={(taData.g_f-taData.xgf>0?'+':'')+f1(taData.g_f-taData.xgf)}/>
+          </div>
+          <div className="g4" style={{marginBottom:10}}>
+            <SC t="Vastustajan laukaukset" v={taData.sh_a}/>
+            <SC t="Päästetyt / xGA" v={`${taData.g_a} / ${f1(taData.xga)}`}/>
+            <SC t="T%" v={f1(taData.sv_pct)+'%'}/>
+            <SC t="YV-laukaukset" v={taData.sh_f_pp} s={`${taData.pp_f.filter(s=>s.e===1).length} maalia, xG ${f1(taData.pp_f.reduce((a,s)=>a+s.xg,0))}`}/>
+          </div>
+          <div className="g2">
+            <div className="cd"><h3>{taTm} — hyökkäys heatmap</h3><VRink shots={taData.sf} maxW={300}/></div>
+            <div className="cd"><h3>Vastustajan hyökkäys heatmap</h3><VRink shots={taData.sa} maxW={300}/></div>
+          </div>
+        </div>
+      }</div>
+    </div>}
+  </div>);
+}
+ReactDOM.render(<App/>,document.getElementById('root'));
+</script>
+</body>
+</html>
