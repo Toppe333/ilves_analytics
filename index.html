@@ -307,12 +307,12 @@ function App(){
       </div>
       <div className="ct"><div className="cd"><h3>Pelaajat ({fP.length})</h3>
         <T hl={hlTm} legend="O=Ottelut Lk=Laukaukset M=Maalit S=Syötöt xG=Maaliodottama G-xG=Maalit−xG RB=Rebound BL=Blokatut laukaukset BLxG=Blokattujen xG TOI=Peliaika(min) TOI/G=Per ottelu xG/60=xG per 60min jääaikaa"
-          cols={[{k:'n',l:'Pelaaja'},{k:'tm',l:'Joukkue'},{k:'pos',l:'PP'},{k:'gp',l:'O',n:1},{k:'sh',l:'Lk',n:1},{k:'g',l:'M',n:1},{k:'a',l:'S',n:1},
+          cols={[{k:'_rank',l:'#',n:1},{k:'n',l:'Pelaaja'},{k:'tm',l:'Joukkue'},{k:'pos',l:'PP'},{k:'gp',l:'O',n:1},{k:'sh',l:'Lk',n:1},{k:'g',l:'M',n:1},{k:'a',l:'S',n:1},
             {k:'xg',l:'xG',n:1,f:v=>f1(v)},{k:'xgd',l:'G-xG',n:1,f:v=>(v>0?'+':'')+f1(v)},
             {k:'rb',l:'RB',n:1},{k:'bl',l:'BL',n:1},{k:'blxg',l:'BLxG',n:1,f:v=>f1(v)},
             {k:'toi',l:'TOI',n:1,f:v=>v?Math.round(v):''},{k:'tpg',l:'TOI/G',n:1,f:v=>v?f1(v):''},
             {k:'xg60',l:'xG/60',n:1,f:v=>v?f2(v):''}]}
-          data={fP} ps={50}/>
+          data={fP.map((p,i)=>({...p,_rank:i+1}))} ps={50}/>
       </div></div>
     </div>}
 
