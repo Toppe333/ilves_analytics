@@ -173,7 +173,7 @@ function App(){
   const sum=useMemo(()=>{const f=fS;if(!f.length)return null;const g=f.filter(s=>s.e===1).length,t=f.length,xg=f.reduce((a,s)=>a+s.xg,0),sv=f.filter(s=>s.e===2).length;return{g,t,xg,sh:g+sv?g/(g+sv)*100:0,gxg:g-xg,sv,rb:f.filter(s=>s.rb).length,pp:f.filter(s=>s.str==='PP').length}},[fS]);
 
   // Goalie data
-  const goalies=useMemo(()=>{if(!shots.length)return[];const m={};shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc).forEach(s=>{if(!s.bn)return;if(!m[s.bn])m[s.bn]={n:s.bn,sv:0,ga:0,xga:0,gp:new Set()};if(s.e===2)m[s.bn].sv++;if(s.e===1){m[s.bn].ga++}m[s.bn].xga+=s.xgm[s.bn].gp.add(s.g)});
+  const goalies=useMemo(()=>{if(!shots.length)return[];const m={};shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc).forEach(s=>{if(!s.bn)return;if(!m[s.bn])m[s.bn]={n:s.bn,sv:0,ga:0,xga:0,gp:new Set()};if(s.e===2)m[s.bn].sv++;if(s.e===1){m[s.bn].ga++;m[s.bn].xga+=s.xg}m[s.bn].gp.add(s.g)});
   return Object.values(m).filter(g=>g.sv>=10).map(g=>({...g,gp_n:g.gp.size,sv_pct:g.sv/(g.sv+g.ga)*100,gsax:g.xga-g.ga})).sort((a,b)=>{const an=a.n.split(' '),bn=b.n.split(' ');return an[an.length-1].localeCompare(bn[bn.length-1])})},[shots,ss]);
 
   const gkShots=useMemo(()=>{if(!shots.length)return[];let f=shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc);if(gkF)f=f.filter(s=>s.bn===gkF);if(gkTm)f=f.filter(s=>s.tm===gkTm);return f},[shots,ss,gkF,gkTm]);
