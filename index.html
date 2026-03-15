@@ -20,7 +20,6 @@
 .fg{display:flex;flex-direction:column;gap:1px}.fg label{font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
 .fg select,.fg input{padding:3px 5px;border:1px solid var(--brd);background:var(--bg3);color:var(--tx);border-radius:3px;font-size:10px;font-family:inherit}
 .fg input[type=text]{min-width:100px}.fg input[type=number]{width:50px}
-.fg select[multiple]{height:70px;font-size:9px}
 .cr{display:flex;gap:2px;flex-wrap:wrap}.ch{padding:1px 5px;border:1px solid var(--brd);border-radius:3px;font-size:9px;cursor:pointer;background:0;color:var(--tx2);transition:.1s;font-family:inherit;white-space:nowrap}
 .ch:hover{border-color:var(--ac);color:var(--ac)}.ch.on{background:var(--ac);color:var(--bg);border-color:var(--ac);font-weight:600}
 .ct{padding:12px 16px;max-width:1440px;margin:0 auto}
@@ -39,7 +38,6 @@ tr:hover{background:rgba(56,189,248,.03)}
 .det{background:var(--bg3);border:1px solid var(--brd);border-radius:4px;padding:6px 8px;margin-top:6px;font-size:10px;min-height:20px}.det a{color:var(--ac);text-decoration:none}.det a:hover{text-decoration:underline}
 .fold{border:1px solid var(--brd);border-radius:4px;margin-top:8px}.fold summary{padding:6px 8px;cursor:pointer;font-size:10px;color:var(--tx2);font-weight:500}.fold summary:hover{color:var(--ac)}
 .fold .fc{padding:6px 8px;max-height:300px;overflow-y:auto}
-.hm-wrap{position:relative;display:inline-block}
 @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.ct{padding:6px}.hdr,.fil{padding:5px 8px}}
 </style>
 </head>
@@ -56,59 +54,49 @@ const f3=v=>v==null||isNaN(v)?'':String(Math.round(v*1000)/1000).replace('.',','
 
 function C({o,sel,set}){return<div className="cr">{o.map(x=><button key={x} className={`ch${sel.includes(x)?' on':''}`} onClick={()=>set(sel.includes(x)?sel.filter(z=>z!==x):[...sel,x])}>{x}</button>)}</div>}
 
-function MultiSel({options,sel,set,label}){
-  return<select multiple value={sel} onChange={e=>{const v=[...e.target.selectedOptions].map(o=>o.value);set(v)}} style={{minHeight:55,fontSize:9}}>
-    {options.map(o=><option key={o} value={o}>{o}</option>)}
-  </select>;
-}
-
-// Half-rink (attack zone only)
-function Rink({shots,sel,setSel,maxH=460}){
-  const w=700,h=380,ox=320,sc=w/(1024-ox);
+// Half-rink (attack zone only) with correct Y scaling
+function Rink({shots,sel,setSel}){
+  const w=700,h=380,ox=320,sc=w/(1024-ox),ysc=h/514;
   const cols={0:'rgba(239,68,68,.15)',1:'rgba(34,197,94,.7)',2:'rgba(6,182,212,.12)',3:'rgba(99,102,241,.12)'};
   const sz={0:1.8,1:3.5,2:1.8,3:1.8};
   const shown=shots.filter(s=>!s.bc).slice(0,12000);
   return(<svg viewBox={`0 0 ${w} ${h}`} style={{width:'70%',margin:'0 auto',display:'block',background:'#111827',borderRadius:6,cursor:'crosshair'}}
-    onClick={e=>{const r=e.currentTarget.getBoundingClientRect();const mx=(e.clientX-r.left)/r.width*w,my=(e.clientY-r.top)/r.height*h;let best=null,bd=999;shown.forEach((s,i)=>{const sx=(s.x-ox)*sc,sy=s.y;const d=Math.sqrt((sx-mx)**2+(sy-my)**2);if(d<bd){bd=d;best=i}});if(best!==null&&bd<12)setSel(shown[best])}}>
+    onClick={e=>{const r=e.currentTarget.getBoundingClientRect();const mx=(e.clientX-r.left)/r.width*w,my=(e.clientY-r.top)/r.height*h;let best=null,bd=999;shown.forEach((s,i)=>{const sx2=(s.x-ox)*sc,sy2=s.y*ysc;const d=Math.sqrt((sx2-mx)**2+(sy2-my)**2);if(d<bd){bd=d;best=i}});if(best!==null&&bd<12)setSel(shown[best])}}>
     <rect x={1} y={1} width={w-2} height={h-2} rx={20} fill="none" stroke="#2a3450" strokeWidth={1.5}/>
     <line x1={(954-ox)*sc} y1={0} x2={(954-ox)*sc} y2={h} stroke="#ef4444" strokeWidth={.8} opacity={.2}/>
     <line x1={(634-ox)*sc} y1={0} x2={(634-ox)*sc} y2={h} stroke="#38bdf8" strokeWidth={1} opacity={.15}/>
     <rect x={(942-ox)*sc} y={h/2-14} width={12*sc} height={28} rx={2} fill="none" stroke="#ef4444" strokeWidth={1.5} opacity={.5}/>
-    {[[849,146],[849,373]].map(([cx,cy],i)=><circle key={i} cx={(cx-ox)*sc} cy={cy*sy} r={70*sc} fill="none" stroke="#ef4444" strokeWidth={.6} opacity={.08}/>)}
-    {shown.map((s,i)=>{const sx2=(s.x-ox)*sc,sy2=s.y*sy;if(sx2<-3)return null;return<circle key={i} cx={sx2} cy={sy2} r={sz[s.e]||1.8} fill={cols[s.e]||'#888'} stroke={s.e===1?"rgba(255,255,255,.6)":"none"} strokeWidth={s.e===1?.5:0}/>})}
+    {[[849,146],[849,373]].map(([cx,cy],i)=><circle key={i} cx={(cx-ox)*sc} cy={cy*ysc} r={70*sc} fill="none" stroke="#ef4444" strokeWidth={.6} opacity={.08}/>)}
+    {shown.map((s,i)=>{const sx2=(s.x-ox)*sc,sy2=s.y*ysc;if(sx2<-3)return null;return<circle key={i} cx={sx2} cy={sy2} r={sz[s.e]||1.8} fill={cols[s.e]||'#888'} stroke={s.e===1?"rgba(255,255,255,.6)":"none"} strokeWidth={s.e===1?.5:0}/>})}
   </svg>);
 }
 
-// Vertical half-rink for player analysis (goal at bottom)
+// Vertical half-rink heatmap (goal at bottom)
 function VRink({shots,maxW=280}){
-  // Rotate 90°: original x→y(inverted), original y→x
   const w=280,h=350,filtered=shots.filter(s=>!s.bc&&s.x>400);
   if(!filtered.length)return<div style={{color:'var(--tx3)',fontSize:9,padding:10}}>Ei dataa</div>;
-  // Map: orig (400-1024) → new y (0-h, goal at bottom=h), orig (0-514)→ new x (0-w)
   const mapX=oy=>oy/514*w;
   const mapY=ox=>(1-(ox-400)/(1024-400))*h;
-  // Heatmap grid
   const grid=Array.from({length:14},()=>Array(10).fill(0));
-  const xgGrid=Array.from({length:14},()=>Array(10).fill(0));
-  filtered.forEach(s=>{const nx=Math.floor(mapX(s.y)/w*10),ny=Math.floor(mapY(s.x)/h*14);if(nx>=0&&nx<10&&ny>=0&&ny<14){grid[ny][nx]++;xgGrid[ny][nx]+=s.xg}});
+  filtered.forEach(s=>{const nx=Math.floor(mapX(s.y)/w*10),ny=Math.floor(mapY(s.x)/h*14);if(nx>=0&&nx<10&&ny>=0&&ny<14){grid[ny][nx]++}});
   const maxV=Math.max(...grid.flat(),1);
   return(<svg viewBox={`0 0 ${w} ${h}`} style={{width:maxW,background:'#111827',borderRadius:5}}>
     {grid.map((row,ri)=>row.map((v,ci)=>{if(!v)return null;const cw=w/10,ch=h/14;const op=Math.min(v/maxV,.8)+.1;return<rect key={`${ri}-${ci}`} x={ci*cw} y={ri*ch} width={cw} height={ch} fill={`rgba(56,189,248,${op})`} rx={1}/>}))}
-    {/* Goal at bottom */}
     <rect x={w/2-20} y={h-4} width={40} height={4} fill="#ef4444" rx={1}/>
     <text x={w/2} y={h-8} textAnchor="middle" fill="#666" fontSize={7}>MAALI</text>
   </svg>);
 }
 
+// Goal net quadrant viz
 function GN({shots}){
   const gs=shots.filter(s=>s.e===1&&s.gx>0&&s.gy>0);
-  if(!gs.length)return<div style={{color:'var(--tx3)',fontSize:9,padding:10}}>Ei osumapaikkadataa (2023-25)</div>;
-  const w=200,h=140,sx=w/200,sy=h/140;
+  if(!gs.length)return<div style={{color:'var(--tx3)',fontSize:9,padding:10}}>Ei osumapaikkadataa (2022-25)</div>;
+  const w=200,h=140,sx=w/200,syy=h/140;
   const q=[0,0,0,0];gs.forEach(g=>{const r=g.gx>100?1:0,b=g.gy>70?2:0;q[r+b]++});const tot=gs.length;
   return(<div>
     <svg viewBox={`0 0 ${w} ${h}`} style={{background:'#1a2236',borderRadius:4,border:'1.5px solid var(--mis)',display:'block',margin:'0 auto',maxWidth:200}}>
       <line x1={0} y1={h/2} x2={w} y2={h/2} stroke="#444" strokeWidth={.4}/><line x1={w/2} y1={0} x2={w/2} y2={h} stroke="#444" strokeWidth={.4}/>
-      {gs.map((g,i)=><circle key={i} cx={g.gx*sx} cy={g.gy*sy} r={3} fill="var(--gol)" opacity={.4} stroke="#fff" strokeWidth={.3}/>)}
+      {gs.map((g,i)=><circle key={i} cx={g.gx*sx} cy={g.gy*syy} r={3} fill="var(--gol)" opacity={.4} stroke="#fff" strokeWidth={.3}/>)}
     </svg>
     <div style={{display:'flex',justifyContent:'center',gap:10,marginTop:4,fontSize:8}}>
       {['VY','OY','VA','OA'].map((l,i)=><span key={i} style={{color:'var(--tx2)'}}>{l}: <b>{q[i]}</b> ({tot?(q[i]/tot*100).toFixed(0):0}%)</span>)}
@@ -118,6 +106,7 @@ function GN({shots}){
 
 function SC({t,v,s}){return<div className="cd"><h3>{t}</h3><div className="big m">{v}</div>{s&&<div className="sub">{s}</div>}</div>}
 
+// Table with row numbering, sorting, pagination
 function T({cols,data,ps=50,hl='',legend=''}){
   const[so,setSo]=useState({c:null,a:false});const[pg,setPg]=useState(0);
   const sd=useMemo(()=>{if(!so.c)return data;return[...data].sort((a,b)=>{let va=a[so.c],vb=b[so.c];if(typeof va==='string')va=va.toLowerCase();if(typeof vb==='string')vb=vb.toLowerCase();if(va==null||va==='')return 1;if(vb==null||vb==='')return-1;return so.a?(va>vb?1:-1):(va<vb?1:-1)})},[data,so]);
@@ -132,75 +121,52 @@ function App(){
   const[tab,setTab]=useState('standings');const[ss,setSs]=useState(['2025-26']);
   const[teams,setTeams]=useState([]);const[players,setPlayers]=useState([]);const[shots,setShots]=useState([]);const[gamesD,setGamesD]=useState([]);
   const[ld,setLd]=useState(true);const[sld,setSld]=useState(false);
-  // Standings
-  const[stTeams,setStTeams]=useState([...AT]);const[stFold,setStFold]=useState(false);
-  // Shotmap
+  const[stTeams,setStTeams]=useState([...AT]);
   const[sTm,setSTm]=useState('');const[sTypes,setSTypes]=useState([0,1,2,3]);const[sSd,setSsd]=useState([]);
   const[sPlayer,setSPlayer]=useState('');const[sOpps,setSOpps]=useState([]);const[sGk,setSGk]=useState('');
   const[selShot,setSelShot]=useState(null);
-  // Goalies
   const[gkF,setGkF]=useState('');const[gkTm,setGkTm]=useState('');
-  // Players
-  const[pS,setPS]=useState('');const[pPos,setPPos]=useState('');const[pMSh,setPMSh]=useState(0);const[pMGp,setPMGp]=useState(0);const[pTm,setPTm]=useState('');const[hlTm,setHlTm]=useState('');const[pOpps,setPOpps]=useState([]);
-  // Shots list
+  const[pS,setPS]=useState('');const[pPos,setPPos]=useState('');const[pMSh,setPMSh]=useState(0);const[pMGp,setPMGp]=useState(0);const[pTm,setPTm]=useState('');const[hlTm,setHlTm]=useState('');
   const[lS,setLS]=useState('');const[lGk,setLGk]=useState('');const[lBl,setLBl]=useState('');const[lTm,setLTm]=useState('');
-  // Player analysis
   const[pa1,setPa1]=useState('');const[pa2,setPa2]=useState('');const[paOpps,setPaOpps]=useState([]);const[paSd,setPaSd]=useState([]);
-  // Team analysis
   const[taTm,setTaTm]=useState('Ilves');const[taOpps,setTaOpps]=useState([]);const[taSd,setTaSd]=useState([]);
 
   useEffect(()=>{Promise.all([fetch('data/teams.json').then(r=>r.json()),fetch('data/players.json').then(r=>r.json()),fetch('data/games.json').then(r=>r.json())]).then(([t,p,g])=>{setTeams(t);setPlayers(p);setGamesD(g);setLd(false)})},[]);
   const loadS=useCallback(()=>{if(!sld)fetch('data/shots.json').then(r=>r.json()).then(d=>{setShots(d);setSld(true)})},[sld]);
   useEffect(()=>{if(['shotmap','shots','goalies','panalysis','tanalysis'].includes(tab))loadS()},[tab]);
 
-  // All player names for dropdowns
   const allPlayers=useMemo(()=>{const s=new Set();players.filter(p=>ss.includes(p.s)).forEach(p=>s.add(p.n));return[...s].sort()},[players,ss]);
 
-  // Filtered shots helper
-  const filterShots=(extra={})=>{
-    if(!shots.length)return[];
-    let f=shots.filter(s=>ss.includes(s.s)&&!s.bc);
-    if(extra.tm)f=f.filter(s=>s.tm===extra.tm);
-    if(extra.types&&extra.types.length<4)f=f.filter(s=>extra.types.includes(s.e));
-    if(extra.sd&&extra.sd.length)f=f.filter(s=>extra.sd.includes(s.sd));
-    if(extra.player)f=f.filter(s=>s.sn.toLowerCase().includes(extra.player.toLowerCase()));
-    if(extra.opps&&extra.opps.length)f=f.filter(s=>extra.opps.includes(s.opp));
-    if(extra.gk)f=f.filter(s=>s.bn.toLowerCase().includes(extra.gk.toLowerCase()));
-    return f;
-  };
+  const fS=useMemo(()=>{if(!shots.length)return[];let f=shots.filter(s=>ss.includes(s.s)&&!s.bc);
+    if(sTm)f=f.filter(s=>s.tm===sTm);if(sTypes.length<4)f=f.filter(s=>sTypes.includes(s.e));
+    if(sSd.length)f=f.filter(s=>sSd.includes(s.sd));if(sPlayer)f=f.filter(s=>s.sn.toLowerCase().includes(sPlayer.toLowerCase()));
+    if(sOpps.length)f=f.filter(s=>sOpps.includes(s.opp));if(sGk)f=f.filter(s=>s.bn.toLowerCase().includes(sGk.toLowerCase()));
+    return f},[shots,ss,sTm,sTypes,sSd,sPlayer,sOpps,sGk]);
 
-  const fS=useMemo(()=>filterShots({tm:sTm,types:sTypes,sd:sSd,player:sPlayer,opps:sOpps,gk:sGk}),[shots,ss,sTm,sTypes,sSd,sPlayer,sOpps,sGk]);
-  const sum=useMemo(()=>{const f=fS;if(!f.length)return null;const g=f.filter(s=>s.e===1).length,t=f.length,xg=f.reduce((a,s)=>a+s.xg,0),sv=f.filter(s=>s.e===2).length;return{g,t,xg,sh:g+sv?g/(g+sv)*100:0,gxg:g-xg,sv,rb:f.filter(s=>s.rb).length,pp:f.filter(s=>s.str==='PP').length}},[fS]);
+  const sum=useMemo(()=>{const f=fS;if(!f.length)return null;const g=f.filter(s=>s.e===1).length,t=f.length,xg=f.reduce((a,s)=>a+s.xg,0),sv=f.filter(s=>s.e===2).length;
+    return{g,t,xg,sh:g+sv?g/(g+sv)*100:0,gxg:g-xg,sv,rb:f.filter(s=>s.rb).length,pp:f.filter(s=>s.str==='PP').length}},[fS]);
 
-  // Goalie data
   const goalies=useMemo(()=>{if(!shots.length)return[];const m={};shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc).forEach(s=>{if(!s.bn)return;if(!m[s.bn])m[s.bn]={n:s.bn,sv:0,ga:0,xga:0,gp:new Set()};if(s.e===2)m[s.bn].sv++;if(s.e===1){m[s.bn].ga++}m[s.bn].xga+=s.xgs||0;m[s.bn].gp.add(s.g)});
   return Object.values(m).filter(g=>g.sv>=10).map(g=>({...g,gp_n:g.gp.size,sv_pct:g.sv/(g.sv+g.ga)*100,gsax:g.xga-g.ga})).sort((a,b)=>{const an=a.n.split(' '),bn=b.n.split(' ');return an[an.length-1].localeCompare(bn[bn.length-1])})},[shots,ss]);
 
   const gkShots=useMemo(()=>{if(!shots.length)return[];let f=shots.filter(s=>ss.includes(s.s)&&s.bgk&&!s.bc);if(gkF)f=f.filter(s=>s.bn===gkF);if(gkTm)f=f.filter(s=>s.tm===gkTm);return f},[shots,ss,gkF,gkTm]);
 
-  // Players aggregated
   const fP=useMemo(()=>{let base=players.filter(p=>ss.includes(p.s));
-    // If opponent filter active, we need to recompute from shots
-    // For simplicity, use pre-aggregated data when no opp filter
     const agg={};base.forEach(p=>{const k=p.n;if(!agg[k])agg[k]={n:p.n,tm:p.tm,pos:p.pos,sh:0,g:0,a:0,xg:0,rb:0,toi:0,gp:0,bl:0,blxg:0,_tpg_s:0,_tpg_n:0};
       const a=agg[k];a.sh+=p.sh;a.g+=p.g;a.a+=p.a;a.xg+=p.xg;a.rb+=p.rb;a.toi+=p.toi;a.gp+=p.gp;a.bl+=p.bl;a.blxg+=p.blxg;if(p.tpg>0){a._tpg_s+=p.tpg;a._tpg_n++}if(p.tm)a.tm=p.tm;if(p.pos)a.pos=p.pos});
     let arr=Object.values(agg).map(a=>({...a,xgd:a.g-a.xg,tpg:a._tpg_n?a._tpg_s/a._tpg_n:0,xg60:a.toi>0?a.xg/a.toi*60:0}));
     if(pTm)arr=arr.filter(p=>p.tm===pTm);
-    if(pPos==='H')arr=arr.filter(p=>p.pos==='H');
-    if(pPos==='P')arr=arr.filter(p=>p.pos==='P');
+    if(pPos==='H')arr=arr.filter(p=>p.pos==='H');if(pPos==='P')arr=arr.filter(p=>p.pos==='P');
     if(pMSh>0)arr=arr.filter(p=>p.sh>=pMSh);if(pMGp>0)arr=arr.filter(p=>p.gp>=pMGp);
     if(pS)arr=arr.filter(p=>p.n.toLowerCase().includes(pS.toLowerCase()));
     return arr},[players,ss,pTm,pPos,pMSh,pMGp,pS]);
 
-  // Shots list
   const fLS=useMemo(()=>{if(!shots.length)return[];let f=shots.filter(s=>ss.includes(s.s));if(lTm)f=f.filter(s=>s.tm===lTm);if(lS)f=f.filter(s=>s.sn.toLowerCase().includes(lS.toLowerCase()));if(lGk)f=f.filter(s=>s.bgk&&s.bn.toLowerCase().includes(lGk.toLowerCase()));if(lBl)f=f.filter(s=>!s.bgk&&s.e===3&&s.bn.toLowerCase().includes(lBl.toLowerCase()));return f},[shots,ss,lTm,lS,lGk,lBl]);
 
-  // Standings computed from games
   const stData=useMemo(()=>{
     const selGames=gamesD.filter(g=>ss.includes(g.s)&&stTeams.includes(g.h)&&stTeams.includes(g.a));
     const a={};stTeams.forEach(t=>a[t]={tm:t,gp:0,w:0,wot:0,lot:0,l:0,pts:0,gf:0,ga:0});
     selGames.forEach(g=>{[g.h,g.a].forEach((t,ti)=>{if(!a[t])return;a[t].gp++;const hm=ti===0;const gf=hm?g.hg:g.ag,ga=hm?g.ag:g.hg;a[t].gf+=gf;a[t].ga+=ga;const won=gf>ga,ot=g.ft===2||g.ft===3;if(won&&ot)a[t].wot++;else if(won)a[t].w++;else if(ot)a[t].lot++;else a[t].l++;a[t].pts=a[t].w*3+a[t].wot*2+a[t].lot})});
-    // Compute L%/T% from filtered shots data
     if(sld){const fGids=new Set(selGames.map(g=>g.id));
       stTeams.forEach(t=>{const ts=shots.filter(s=>fGids.has(s.g)&&s.tm===t&&!s.bc);const sa=shots.filter(s=>fGids.has(s.g)&&s.opp===t&&!s.bc);
         const sog_f=ts.filter(s=>s.e===1||s.e===2);const sog_a=sa.filter(s=>s.e===1||s.e===2);
@@ -211,14 +177,12 @@ function App(){
 
   const stGames=useMemo(()=>gamesD.filter(g=>ss.includes(g.s)&&stTeams.includes(g.h)&&stTeams.includes(g.a)).sort((a,b)=>a.d.localeCompare(b.d)),[gamesD,ss,stTeams]);
 
-  // Player analysis data
   const paData=(name)=>{if(!name||!shots.length)return{shots:[],sh:0,g:0,a:0,xg:0,gp:0,toi:0};
     let f=shots.filter(s=>ss.includes(s.s)&&s.sn===name&&!s.bc);
     if(paOpps.length)f=f.filter(s=>paOpps.includes(s.opp));if(paSd.length)f=f.filter(s=>paSd.includes(s.sd));
     const pi=players.filter(p=>ss.includes(p.s)&&p.n===name);const toi=pi.reduce((a,p)=>a+p.toi,0);const gp=pi.reduce((a,p)=>a+p.gp,0);const assists=pi.reduce((a,p)=>a+p.a,0);
     return{shots:f,sh:f.length,g:f.filter(s=>s.e===1).length,a:assists,xg:f.reduce((a,s)=>a+s.xg,0),gp,toi}};
 
-  // Team analysis data
   const taData=useMemo(()=>{if(!taTm||!shots.length)return null;
     let f=shots.filter(s=>ss.includes(s.s)&&s.tm===taTm&&!s.bc);let fa=shots.filter(s=>ss.includes(s.s)&&s.opp===taTm&&!s.bc);
     if(taOpps.length){f=f.filter(s=>taOpps.includes(s.opp));fa=fa.filter(s=>taOpps.includes(s.tm))}
@@ -239,11 +203,10 @@ function App(){
       <div className="nav">{[['standings','Taulukko'],['shotmap','Laukaisukartta'],['goalies','Maalivahdit'],['players','Pelaajat'],['shots','Laukaukset'],['panalysis','Pelaaja-analyysi'],['tanalysis','Joukkue-analyysi']].map(([k,v])=><button key={k} className={`nb${tab===k?' on':''}`} onClick={()=>setTab(k)}>{v}</button>)}</div>
     </div>
 
-    {/* TAULUKKO */}
     {tab==='standings'&&<div>
       <div className="fil">{SC_}<div className="fg"><label>Joukkueet</label><C o={AT} sel={stTeams} set={setStTeams}/></div></div>
       <div className="ct"><div className="cd">
-        <T legend="O=Ottelut V=Voitot VJ=JA-voitto HJ=JA-häviö H=Häviöt P=Pisteet TM=Tehdyt maalit PM=Päästetyt ME=Maaliero L%=Laukaisuprosentti T%=Torjuntaprosentti" cols={[{k:'tm',l:'Joukkue'},{k:'gp',l:'O',n:1},{k:'w',l:'V',n:1},{k:'wot',l:'VJ',n:1},{k:'lot',l:'HJ',n:1},{k:'l',l:'H',n:1},{k:'pts',l:'P',n:1},{k:'gf',l:'TM',n:1},{k:'ga',l:'PM',n:1},{k:'me',l:'ME',n:1,f:(_,r)=>{const v=r.gf-r.ga;return(v>0?'+':'')+v}},{k:'sh_pct',l:'L%',n:1,f:v=>v?f1(v)+'%':''},{k:'sv_pct',l:'T%',n:1,f:v=>v?f1(v)+'%':''}]} data={stData} ps={9}/>
+        <T legend="O=Ottelut V=Voitot VJ=JA-voitto HJ=JA-häviö H=Häviöt P=Pisteet TM=Tehdyt maalit PM=Päästetyt ME=Maaliero L%=Laukaisuprosentti T%=Torjuntaprosentti" cols={[{k:'tm',l:'Joukkue'},{k:'gp',l:'O',n:1},{k:'w',l:'V',n:1},{k:'wot',l:'VJ',n:1},{k:'lot',l:'HJ',n:1},{k:'l',l:'H',n:1},{k:'pts',l:'P',n:1},{k:'gf',l:'TM',n:1},{k:'ga',l:'PM',n:1},{k:'me',l:'ME',n:1,f:(_,r)=>{const v=r.gf-r.ga;return(v>0?'+':'')+v}},{k:'sh_pct',l:'L%',n:1,f:v=>v?f1(v)+'%':''},{k:'sv_pct',l:'T%',n:1,f:v=>v?f1(v)+'%':''}]} data={stData} ps={10}/>
         <details className="fold"><summary>Huomioidut ottelut ({stGames.length})</summary>
           <div className="fc"><table><thead><tr><th>Kausi</th><th>Pvm</th><th>Ottelu</th><th>Tulos</th><th>↗</th></tr></thead>
             <tbody>{stGames.map((g,i)=><tr key={i}><td>{g.s.slice(2)}</td><td>{g.d}</td><td>{g.h}–{g.a}</td><td className="m">{g.hg}–{g.ag}{g.ft===2?' JA':g.ft===3?' VL':''}</td><td><a href={g.url} target="_blank" rel="noopener" style={{color:'var(--ac)',fontSize:9}}>↗</a></td></tr>)}</tbody></table></div>
@@ -251,7 +214,6 @@ function App(){
       </div></div>
     </div>}
 
-    {/* LAUKAISUKARTTA */}
     {tab==='shotmap'&&<div>
       <div className="fil">{SC_}
         <div className="fg"><label>Joukkue</label><select value={sTm} onChange={e=>setSTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
@@ -271,31 +233,29 @@ function App(){
         <div className="cd">
           <h3>Hyökkäyspääty ({fS.length>12000?`12 000 / ${fS.length}`:fS.length}) — klikkaa laukausta</h3>
           <div className="legend"><span><div className="dot" style={{background:'var(--gol)'}}/>Maali</span><span><div className="dot" style={{background:'var(--sav)'}}/>Torjunta</span><span><div className="dot" style={{background:'var(--blk)'}}/>Peitetty</span><span><div className="dot" style={{background:'var(--mis)'}}/>Ohi</span></div>
-          <Rink shots={fS} sel={selShot} setSel={setSelShot} maxH={320}/>
+          <Rink shots={fS} sel={selShot} setSel={setSelShot}/>
           <div className="det">{selShot?<span>{EN[selShot.e]} · <b>{selShot.sn}</b> #{selShot.sj} ({selShot.tm}) vs {selShot.opp} · {Math.floor(selShot.t/60)}:{String(selShot.t%60).padStart(2,'0')} P{selShot.p} · {f1(selShot.d)}m · xG {f3(selShot.xg)} · {selShot.sd} {selShot.rb?'REB ':''}{selShot.gt||''} · {selShot.bgk?'MV':'BL'}: {selShot.bn} · <a href={selShot.url} target="_blank">Avaa ottelu ↗</a></span>:'Klikkaa laukausta'}</div>
         </div>
       </>}</div>
     </div>}
 
-    {/* MAALIVAHDIT */}
     {tab==='goalies'&&<div>
       <div className="fil">{SC_}
         <div className="fg"><label>Maalivahti</label><select value={gkF} onChange={e=>setGkF(e.target.value)}><option value="">Kaikki</option>
-          {goalies.map(g=>{const p=g.n.split(' ');const d=p.length>1?`${p.slice(-1)[0]} ${p.slice(0,-1).join(' ')}`:g.n;return<option key={g.n} value={g.n}>{d} — {g.tm}</option>})}
+          {goalies.map(g=>{const p=g.n.split(' ');const d=p.length>1?`${p.slice(-1)[0]} ${p.slice(0,-1).join(' ')}`:g.n;return<option key={g.n} value={g.n}>{d}</option>})}
         </select></div>
         <div className="fg"><label>Laukaiseva joukkue</label><select value={gkTm} onChange={e=>setGkTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
       </div>
       <div className="ct">{!sld?<div className="ld"><div className="sp"/></div>:
         <div className="g2">
-          <div className="cd"><h3>Osumapaikat {gkF&&`— ${gkF}`}</h3><GN shots={gkShots}/><div className="leg">Osumapaikkadata saatavilla kausilta 23-25. Kaudelta 25-26 tulospalvelu ei tarjoa GoalX/GoalY-dataa. VY=Vasen ylä OY=Oikea ylä VA=Vasen ala OA=Oikea ala.</div></div>
+          <div className="cd"><h3>Osumapaikat {gkF&&`— ${gkF}`}</h3><GN shots={gkShots}/><div className="leg">Osumapaikkadata saatavilla kausilta 22-25. Kaudelta 25-26 GoalX/GoalY ei saatavilla. VY=Vasen ylä OY=Oikea ylä VA=Vasen ala OA=Oikea ala.</div></div>
           <div className="cd"><h3>Maalivahdit</h3>
-            <T legend="O=Ottelut Torj=Torjunnat PM=Päästetyt maalit T%=Torjuntaprosentti xGA=Odotetut päästetyt (laukauksista maalia kohti) GSAx=Torjunnat yli odotusarvon (xGA−PM)" cols={[{k:'n',l:'MV'},{k:'tm',l:'Joukkue'},{k:'gp_n',l:'O',n:1},{k:'sv',l:'Torj',n:1},{k:'ga',l:'PM',n:1},{k:'sv_pct',l:'T%',n:1,f:v=>f1(v)+'%'},{k:'xga',l:'xGA',n:1,f:v=>f1(v)},{k:'gsax',l:'GSAx',n:1,f:v=>(v>0?'+':'')+f1(v)}]} data={goalies} ps={50}/>
+            <T legend="O=Ottelut Torj=Torjunnat PM=Päästetyt maalit T%=Torjuntaprosentti xGA=Odotetut päästetyt (SOG-malli) GSAx=Torjunnat yli odotusarvon (xGA−PM, positiivinen=hyvä)" cols={[{k:'n',l:'MV'},{k:'gp_n',l:'O',n:1},{k:'sv',l:'Torj',n:1},{k:'ga',l:'PM',n:1},{k:'sv_pct',l:'T%',n:1,f:v=>f1(v)+'%'},{k:'xga',l:'xGA',n:1,f:v=>f1(v)},{k:'gsax',l:'GSAx',n:1,f:v=>(v>0?'+':'')+f1(v)}]} data={goalies} ps={50}/>
           </div>
         </div>
       }</div>
     </div>}
 
-    {/* PELAAJAT */}
     {tab==='players'&&<div>
       <div className="fil">{SC_}
         <div className="fg"><label>Joukkue</label><select value={pTm} onChange={e=>setPTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
@@ -316,7 +276,6 @@ function App(){
       </div></div>
     </div>}
 
-    {/* LAUKAUKSET */}
     {tab==='shots'&&<div>
       <div className="fil">{SC_}
         <div className="fg"><label>Joukkue</label><select value={lTm} onChange={e=>setLTm(e.target.value)}><option value="">Kaikki</option>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
@@ -326,7 +285,7 @@ function App(){
       </div>
       <div className="ct">{!sld?<div className="ld"><div className="sp"/></div>:
         <div className="cd"><h3>Laukaukset ({fLS.length.toLocaleString('fi')})</h3>
-          <T legend="Et.=Etäisyys(m) Kulma=Näkyvä maalikulma(°) xG=Maaliodottama Til.=EV/PP/SH Vahv.=Esim 5v4"
+          <T legend="Et.=Etäisyys(m) Kulma=Näkyvä maalikulma(°) xG=Maaliodottama Vahv.=Esim 5v4"
             cols={[{k:'s',l:'Kausi'},{k:'g',l:'Ottelu',n:1},{k:'p',l:'Erä',n:1},
               {k:'_t',l:'Aika',f:(_,r)=>`${Math.floor(r.t/60)}:${String(r.t%60).padStart(2,'0')}`},
               {k:'tm',l:'Joukkue'},{k:'opp',l:'Vast.'},{k:'sn',l:'Laukaisija'},
@@ -341,7 +300,6 @@ function App(){
       }</div>
     </div>}
 
-    {/* PELAAJA-ANALYYSI */}
     {tab==='panalysis'&&<div>
       <div className="fil">{SC_}
         <div className="fg"><label>Pelaaja 1</label><select value={pa1} onChange={e=>setPa1(e.target.value)}><option value="">Valitse...</option>{allPlayers.map(p=><option key={p}>{p}</option>)}</select></div>
@@ -373,7 +331,6 @@ function App(){
       }</div>
     </div>}
 
-    {/* JOUKKUE-ANALYYSI */}
     {tab==='tanalysis'&&<div>
       <div className="fil">{SC_}
         <div className="fg"><label>Joukkue</label><select value={taTm} onChange={e=>setTaTm(e.target.value)}>{AT.map(t=><option key={t}>{t}</option>)}</select></div>
