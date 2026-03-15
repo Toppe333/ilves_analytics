@@ -74,8 +74,8 @@ function Rink({shots,sel,setSel,maxH=460}){
     <line x1={(954-ox)*sc} y1={0} x2={(954-ox)*sc} y2={h} stroke="#ef4444" strokeWidth={.8} opacity={.2}/>
     <line x1={(634-ox)*sc} y1={0} x2={(634-ox)*sc} y2={h} stroke="#38bdf8" strokeWidth={1} opacity={.15}/>
     <rect x={(942-ox)*sc} y={h/2-14} width={12*sc} height={28} rx={2} fill="none" stroke="#ef4444" strokeWidth={1.5} opacity={.5}/>
-    {[[849,146],[849,373]].map(([cx,cy],i)=><circle key={i} cx={(cx-ox)*sc} cy={cy} r={70*sc} fill="none" stroke="#ef4444" strokeWidth={.6} opacity={.08}/>)}
-    {shown.map((s,i)=>{const sx=(s.x-ox)*sc,sy=s.y;if(sx<-3)return null;return<circle key={i} cx={sx} cy={sy} r={sz[s.e]||1.8} fill={cols[s.e]||'#888'} stroke={s.e===1?"rgba(255,255,255,.6)":"none"} strokeWidth={s.e===1?.5:0}/>})}
+    {[[849,146],[849,373]].map(([cx,cy],i)=><circle key={i} cx={(cx-ox)*sc} cy={cy*sy} r={70*sc} fill="none" stroke="#ef4444" strokeWidth={.6} opacity={.08}/>)}
+    {shown.map((s,i)=>{const sx2=(s.x-ox)*sc,sy2=s.y*sy;if(sx2<-3)return null;return<circle key={i} cx={sx2} cy={sy2} r={sz[s.e]||1.8} fill={cols[s.e]||'#888'} stroke={s.e===1?"rgba(255,255,255,.6)":"none"} strokeWidth={s.e===1?.5:0}/>})}
   </svg>);
 }
 
